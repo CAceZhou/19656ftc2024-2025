@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.common.drive.Drivetrain;
 import org.firstinspires.ftc.teamcode.common.drive.OdoDrivetrain;
 import org.firstinspires.ftc.teamcode.common.drive.PinpointTrajectory;
 import org.firstinspires.ftc.teamcode.common.drive.Trajectory;
-import org.firstinspires.ftc.teamcode.common.hardware.GamepadEx;
+import org.firstinspires.ftc.teamcode.common.hardware.Gamepad.GamepadEx;
 import org.firstinspires.ftc.teamcode.common.hardware.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.common.hardware.LimelightCamera;
 import org.firstinspires.ftc.teamcode.common.hardware.Odometry;

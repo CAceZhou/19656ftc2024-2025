@@ -140,7 +140,7 @@ public class Dabian extends LinearOpMode {
 //                    .keyDown("dpad_right", () -> Globals.VAR1 += 1)
 
 
-                    // 自瞄吃联盟色样本
+                    // 自瞄拾取联盟色样本
                     .keyDown("right_bumper", () -> robot.subsystem.newclaw.observer())
                     .keyPress("right_bumper", () -> aimToSample(robot.teamColor == Alliance.BLUE ? ColorRange.BLUE : ColorRange.RED))
                     .keyUp("right_bumper", this::shotToSample)
@@ -148,12 +148,12 @@ public class Dabian extends LinearOpMode {
                     .keyDown("dpad_down", () -> {
                         robot.command.left_IngrabberPut();
                         StretcherStat = false;
-                    })//让左stretcher向前伸，准备好吃sample
+                    })//让左stretcher向前伸，准备好拾取sample
 
                     .keyDown("dpad_up", () -> {
                         robot.command.left_IngrabberEatForOpMode();
                         StretcherStat = true;
-                    })//让左stretcher向后缩，并吐出sample
+                    })//让左stretcher向后缩，并放下sample
 
 
                     .keyPress("dpad_left", () -> robot.subsystem.ingrabber.left_takeIn())//按住dpad_left让右ingrabber吃样本
