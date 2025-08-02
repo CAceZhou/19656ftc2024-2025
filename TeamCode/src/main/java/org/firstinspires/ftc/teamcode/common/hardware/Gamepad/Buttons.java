@@ -2,6 +2,14 @@ package org.firstinspires.ftc.teamcode.common.hardware.Gamepad;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+/**
+ * 这里储存了手柄上每一个键与Gamepad类的名称
+ * 同时与sdk中Gamepad类提供的状态变量一一对应
+ * 还为每个按钮存在的不同行为提供了不同参数获取方法
+ * 此处的注释基本是Gamepad中的注释的直译，如有错误敬请修改
+ *
+ * ps: 张老师你说得对，按钮一点也不多，也就三十个对吧
+ */
 public enum Buttons {
     // Analog stick axes
     LEFT_STICK_X {
