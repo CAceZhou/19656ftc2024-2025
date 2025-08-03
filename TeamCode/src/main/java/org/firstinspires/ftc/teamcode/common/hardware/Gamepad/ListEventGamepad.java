@@ -12,12 +12,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class ListEventGamepad extends Gamepad {
     public static boolean PRESS = true;
     public static boolean RELEASE = false;
+
+    private Executor executor = null;
 
     private final ScheduledExecutorService pollingExecutor =
             Executors.newSingleThreadScheduledExecutor();
@@ -36,6 +39,13 @@ public class ListEventGamepad extends Gamepad {
             mapToInit.put(button, new CopyOnWriteArrayList<>());
         }
         return Collections.unmodifiableMap(mapToInit);
+    }
+
+    public synchronized Executor getexecutor() {
+        if (executor == null) {
+            executor = Executors.newCachedThreadPool();
+        }
+        return executor;
     }
 
     private static class AsyncRunnable implements Runnable {
@@ -75,18 +85,22 @@ public class ListEventGamepad extends Gamepad {
     public void pollControllerState() {
         for (Buttons button : Buttons.values()) {
             if (button.wasJustPressed(this)) {
-                for (Runnable action : Objects.requireNonNull(registeredButtonPress.get(button))) {
+                for (Runnable action :
+                        Objects.requireNonNull(registeredButtonPress.get(button))) {
                     action.run();
                 }
-                for (Consumer<Boolean> action : Objects.requireNonNull(registeredButtonChange.get(button))) {
+                for (Consumer<Boolean> action :
+                        Objects.requireNonNull(registeredButtonChange.get(button))) {
                     action.accept(PRESS);
                 }
             }
             if (button.wasJustReleased(this)) {
-                for (Runnable action : Objects.requireNonNull(registeredButtonRelease.get(button))) {
+                for (Runnable action :
+                        Objects.requireNonNull(registeredButtonRelease.get(button))) {
                     action.run();
                 }
-                for (Consumer<Boolean> action : Objects.requireNonNull(registeredButtonChange.get(button))) {
+                for (Consumer<Boolean> action :
+                        Objects.requireNonNull(registeredButtonChange.get(button))) {
                     action.accept(RELEASE);
                 }
             }
@@ -97,12 +111,30 @@ public class ListEventGamepad extends Gamepad {
         Objects.requireNonNull(registeredButtonPress.get(button)).add(action);
     }
 
+    public void onButtonPressAsync(Buttons button, Runnable action, Executor executor) {
+        Objects.requireNonNull(
+                registeredButtonPress.get(button)).add(new AsyncRunnable(action, executor)
+        );
+    }
+
     public void onButtonRelease(Buttons button, Runnable action) {
         Objects.requireNonNull(registeredButtonRelease.get(button)).add(action);
     }
 
+    public void onButtonReleaseAsync(Buttons button, Runnable action, Executor executor) {
+        Objects.requireNonNull(
+                registeredButtonRelease.get(button)).add(new AsyncRunnable(action, executor)
+        );
+    }
+
     public void onButtonChange(Buttons button, Consumer<Boolean> action) {
         Objects.requireNonNull(registeredButtonChange.get(button)).add(action);
+    }
+
+    public void onButtonChangeAsync(Buttons button, Consumer<Boolean> action, Executor executor) {
+        Objects.requireNonNull(
+                registeredButtonChange.get(button)).add(new AsyncConsumer<>(action, executor)
+        );
     }
 
 
