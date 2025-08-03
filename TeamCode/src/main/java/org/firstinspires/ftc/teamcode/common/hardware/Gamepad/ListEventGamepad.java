@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.common.hardware.Gamepad;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.teamcode.common.hardware.Gamepad.controllers.Buttons;
 
 import java.util.Collections;
@@ -12,7 +11,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -41,7 +39,7 @@ public class ListEventGamepad extends Gamepad {
         return Collections.unmodifiableMap(mapToInit);
     }
 
-    public synchronized Executor getexecutor() {
+    private synchronized Executor getexecutor() {
         if (executor == null) {
             executor = Executors.newCachedThreadPool();
         }
@@ -82,7 +80,7 @@ public class ListEventGamepad extends Gamepad {
         pollingExecutor.schedule(this::pollControllerState, 10L, TimeUnit.MILLISECONDS);
     }
 
-    public void pollControllerState() {
+    public void pollControllerState() { // This method is not public, so it remains void
         for (Buttons button : Buttons.values()) {
             if (button.wasJustPressed(this)) {
                 for (Runnable action :
@@ -107,35 +105,57 @@ public class ListEventGamepad extends Gamepad {
         }
     }
 
-    public void onButtonPress(Buttons button, Runnable action) {
+    public ListEventGamepad onButtonPress(Buttons button, Runnable action) {
         Objects.requireNonNull(registeredButtonPress.get(button)).add(action);
+        return this;
     }
 
-    public void onButtonPressAsync(Buttons button, Runnable action, Executor executor) {
+    public ListEventGamepad onButtonPressAsync(Buttons button, Runnable action) {
+        Objects.requireNonNull(registeredButtonPress.get(button)).
+                add(new AsyncRunnable(action, getexecutor()));
+        return this;
+    }
+
+    public ListEventGamepad onButtonPressAsync(Buttons button, Runnable action, Executor executor) {
         Objects.requireNonNull(
                 registeredButtonPress.get(button)).add(new AsyncRunnable(action, executor)
         );
+        return this;
     }
 
-    public void onButtonRelease(Buttons button, Runnable action) {
+    public ListEventGamepad onButtonRelease(Buttons button, Runnable action) {
         Objects.requireNonNull(registeredButtonRelease.get(button)).add(action);
+        return this;
     }
 
-    public void onButtonReleaseAsync(Buttons button, Runnable action, Executor executor) {
+    public ListEventGamepad onButtonReleaseAsync(Buttons button, Runnable action) {
+        Objects.requireNonNull(registeredButtonRelease.get(button)).
+                add(new AsyncRunnable(action, getexecutor()));
+        return this;
+    }
+
+    public ListEventGamepad onButtonReleaseAsync(Buttons button, Runnable action, Executor executor) {
         Objects.requireNonNull(
                 registeredButtonRelease.get(button)).add(new AsyncRunnable(action, executor)
         );
+        return this;
     }
 
-    public void onButtonChange(Buttons button, Consumer<Boolean> action) {
+    public ListEventGamepad onButtonChange(Buttons button, Consumer<Boolean> action) {
         Objects.requireNonNull(registeredButtonChange.get(button)).add(action);
+        return this;
     }
 
-    public void onButtonChangeAsync(Buttons button, Consumer<Boolean> action, Executor executor) {
+    public ListEventGamepad onButtonChangeAsync(Buttons button, Consumer<Boolean> action) {
+        Objects.requireNonNull(registeredButtonChange.get(button)).
+                add(new AsyncConsumer<>(action, getexecutor()));
+        return this;
+    }
+
+    public ListEventGamepad onButtonChangeAsync(Buttons button, Consumer<Boolean> action, Executor executor) {
         Objects.requireNonNull(
                 registeredButtonChange.get(button)).add(new AsyncConsumer<>(action, executor)
         );
+        return this;
     }
-
-
 }
